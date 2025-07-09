@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Presupuestador de Colchones</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#212529" />
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    body { background-color: #f8f9fa; padding: 1rem; }
+    .btn-check + .btn {
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .card-producto {
+      font-size: 0.9rem;
+    }
+
+    /* Estilos modo oscuro */
+    body.modo-oscuro {
+      background-color: #121212 !important;
+      color: #f0f0f0 !important;
+    }
+
+    body.modo-oscuro .card,
+    body.modo-oscuro .form-control,
+    body.modo-oscuro .btn,
+    body.modo-oscuro .form-check-label,
+    body.modo-oscuro select,
+    body.modo-oscuro textarea {
+      background-color: #1e1e1e !important;
+      color: #f0f0f0 !important;
+      border-color: #444 !important;
+    }
+  </style>
+</head>
+<header>
+ <div class="form-check form-switch">
+  <input class="form-check-input" type="checkbox" id="modoOscuroSwitch" onchange="toggleModoOscuro()">
+  <label class="form-check-label" for="modoOscuroSwitch">🌙 Modo oscuro</label>
+</div>
+</header>
+<body>
+  <div class="container">
+    <h4 class="text-center mb-3">💬 Generador de presupuestos</h4>
+    <ul class="nav nav-tabs mb-4" id="tabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#generador" type="button" role="tab">📨 Mensaje</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#productos" type="button" role="tab">📦 Productos</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#ajustes" type="button" role="tab">⚙️ Ajustes</button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- GENERADOR DE MENSAJES -->
+      <div class="tab-pane fade show active" id="generador" role="tabpanel">
+        <div class="mb-3">
+          <label class="form-label">Empresa</label>
+          <select id="selectEmpresa" class="form-select"></select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Producto</label>
+          <select id="selectProducto" class="form-select"></select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Tamaño</label>
+          <div id="tamaniosContainer" class="d-flex flex-wrap"></div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Nombre del vendedor</label>
+          <input type="text" class="form-control" id="vendedorInput">
+        </div>
+
+        <button class="btn btn-outline-primary w-100 mb-3" onclick="agregarProductoAlMensaje()">➕ Agregar al mensaje</button>
+
+        <div class="mb-3">
+          <label class="form-label">Mensaje generado</label>
+          <textarea class="form-control" rows="10" id="mensajeFinal" readonly></textarea>
+        </div>
+
+        <button class="btn btn-outline-secondary w-100" onclick="copiarMensaje()">📋 Copiar mensaje</button>
+      </div>
+
+      <!-- CARGA DE PRODUCTOS -->
+      <div class="tab-pane fade" id="productos" role="tabpanel">
+        <div class="mb-3">
+          <label class="form-label">Título</label>
+          <input type="text" class="form-control" id="tituloInput">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Empresa</label>
+          <input type="text" class="form-control" id="empresaInput">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-control" id="descripcionInput"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Tamaños disponibles (separados por coma)</label>
+          <input type="text" class="form-control" id="tamaniosInput" placeholder="Ej: 90x190, 100x200">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Precios en efectivo (por tamaño)</label>
+          <input type="text" class="form-control" id="efectivoInput" placeholder="Ej: 400000, 430000">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Precios de lista (por tamaño)</label>
+          <input type="text" class="form-control" id="listaInput" placeholder="Ej: 460000, 490000">
+        </div>
+        <button class="btn btn-success w-100" id="btnGuardarProducto" onclick="guardarProducto()">💾 Cargar producto</button>
+
+        <hr>
+        <h6>📦 Productos cargados:</h6>
+        <div id="listaProductos"></div>
+      </div>
+
+      <!-- AJUSTES -->
+      <div class="tab-pane fade" id="ajustes" role="tabpanel">
+        <div class="mb-3">
+          <label class="form-label">Saludo inicial</label>
+          <input type="text" class="form-control" id="saludoInicio" placeholder="Ej: Hola, ¿cómo estás? Te paso el presupuesto...">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Despedida</label>
+          <input type="text" class="form-control" id="saludoFinal" placeholder="Ej: Gracias por confiar, saludos!">
+        </div>
+        <button class="btn btn-primary w-100" onclick="guardarSaludo()">💾 Guardar ajustes</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./serviceWorker.js')
+        .then(reg => console.log("✔️ Service worker registrado"))
+        .catch(err => console.error("❌ Error al registrar SW", err));
+    });
+  }
+</script>
+</body>
+</html>
